@@ -8,76 +8,90 @@ namespace IntersectingShapes
 {
     class Program
     {
-        static Collision collision;
+        static Intersection intersection;
         static void Main(string[] args)
         {
-            collision = new Collision();
-            string input;
-            do
+            try
             {
-                Console.Clear();
-                if (collision.ProvidedShapes.Count > 0)
+                intersection = new Intersection();
+                string input;
+                do
                 {
-                    Console.WriteLine("Added shapes:");
-                    for (int i = 0; i < collision.ProvidedShapes.Count; i++)
+                    Console.Clear();
+                    if (intersection.ProvidedShapes.Count > 0)
                     {
-                        collision.ProvidedShapes[i].PrintCoordinates();
+                        Console.WriteLine("Added shapes:");
+                        for (int i = 0; i < intersection.ProvidedShapes.Count; i++)
+                        {
+                            Console.Write("Shape {0} -> ", i + 1);
+                            intersection.ProvidedShapes[i].PrintCoordinates();
+                        }
+                        Console.WriteLine("----------------------------------------");
                     }
-                    Console.WriteLine("----------------------------------------");
-                }
-                Console.WriteLine("1. Add a shape");
-                if (collision.ProvidedShapes.Count > 0)
-                    Console.WriteLine("2. Delete a shape");
-                if (collision.ProvidedShapes.Count > 1)
-                    Console.WriteLine("3. Check intersecion of added shapes");
-                Console.WriteLine("4. Restart");
-                Console.WriteLine("0. Exit");
-                Console.Write("Please enter your choice: ");
-                input = Console.ReadLine();
-                int choice;
-                if (int.TryParse(input, out choice))
-                {
-                    switch (choice)
+                    Console.WriteLine("1. Add a shape");
+                    if (intersection.ProvidedShapes.Count > 0)
+                        Console.WriteLine("2. Delete a shape");
+                    if (intersection.ProvidedShapes.Count > 1)
+                        Console.WriteLine("3. Check intersecion of added shapes");
+                    if (intersection.ProvidedShapes.Count > 0)
+                        Console.WriteLine("4. Restart");
+                    Console.WriteLine("0. Exit");
+                    Console.Write("Please enter your choice: ");
+                    input = Console.ReadLine();
+                    int choice;
+                    if (int.TryParse(input, out choice))
                     {
-                        case 0:
+                        switch (choice)
+                        {
+                            case 0: //Exit
+                                break;
+                            case 1: //Add shape
+                                InputShape();
+                                break;
+                            case 2: //Delete shape
+                                if(intersection.ProvidedShapes.Count > 0)
+                                    DeleteShape();
+                                break;
+                            case 3: //check intersection
+                                if(intersection.ProvidedShapes.Count > 1)
+                                    intersection.FindIntersecingShapes(true);
+                                break;
+                            case 4: //Reset
+                                if (intersection.ProvidedShapes.Count > 0)
+                                    intersection.ProvidedShapes.Clear();
+                                break;
+                            default:
+                                Console.WriteLine("Invalid choice! Please try again.");
+                                break;
+                        }
+                        if (choice == 0)
+                        {
                             break;
-                        case 1:
-                            InputShape();
-                            break;
-                        case 2:
-                            DeleteShape();
-                            break;
-                        case 3:
-                            collision.FindIntersecingShapes();
-                            Console.WriteLine(collision.AnyIntersectionFound);
-                            break;
-                        case 4:
-                            collision.ProvidedShapes.Clear();
-                            break;
-                        default:
-                            Console.WriteLine("Invalid choice! Please try again.");
-                            break;
+                        }
                     }
-                    if(choice == 0)
+                    else
                     {
-                        break;
+                        Console.WriteLine("Invalid choice! Please try again.");
                     }
-                }
-                else
-                {
-                    Console.WriteLine("Invalid choice! Please try again.");
-                }
-                Console.WriteLine("Press any key to continue...");
+                    Console.WriteLine("Press any key to continue...");
+                    Console.ReadLine();
+                } while (true);
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine("Oops! Something went wrong. Share the error message with us so that we can improve the application.");
+                Console.WriteLine(ex.Message);
+                Console.WriteLine("Press any key to exit the application...");
                 Console.ReadLine();
-            } while (true);
+            }
         }
         static void InputShape()
         {
             Shape shape = new Rectangle();
             string input;
             bool isChoiceValid = false;
-            Console.WriteLine("1. Rectangle");
-            Console.WriteLine("2. Triangle");
+            Console.WriteLine("1. 2D Rectangle");
+            Console.WriteLine("2. 2D Triangle");
             Console.Write("Please select a shape: ");
             input = Console.ReadLine();
             int choice;
@@ -87,11 +101,11 @@ namespace IntersectingShapes
                 {
                     case 1:
                         isChoiceValid = true;
-                        shape = new Rectangle();
+                        shape = new Rectangle(2);
                         break;
                     case 2:
                         isChoiceValid = true;
-                        shape = new Trinagle();
+                        shape = new Trinagle(2);
                         break;
                     default:
                         Console.WriteLine("Invalid choice! Please try again.");
@@ -103,7 +117,7 @@ namespace IntersectingShapes
                     if (isInputSuccess)
                     {
                         Console.WriteLine(string.Format("{0} added successfully.", shape.ShapeName));
-                        collision.ProvidedShapes.Add(shape);
+                        intersection.ProvidedShapes.Add(shape);
                     }
                     else
                     {
@@ -124,9 +138,9 @@ namespace IntersectingShapes
             int index;
             if (int.TryParse(input, out index))
             {
-                if(index > 0 && index <= collision.ProvidedShapes.Count)
+                if(index > 0 && index <= intersection.ProvidedShapes.Count)
                 {
-                    collision.ProvidedShapes.RemoveAt(index - 1);
+                    intersection.ProvidedShapes.RemoveAt(index - 1);
                     Console.WriteLine("Shape deleted successfully.");
                 }
                 else

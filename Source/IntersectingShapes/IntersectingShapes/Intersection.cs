@@ -8,18 +8,24 @@ namespace IntersectingShapes
 {
     public class Intersection
     {
+        private const int axisX = 101;
+        private const int axisY = 21;        
+        private int minX, minY, maxX, maxY;
+        private ConsoleColor[,] px = new ConsoleColor[axisY, axisX];
         public List<Shape> ProvidedShapes { get; set; }
         public bool[,] IsAnIntersectingShape { get; set; }
+        private bool[] IntersectingIndex { get; set; }
         public bool AnyIntersectionFound { get; set; }
         //populate IsAnIntersectingShape; it holds intersection for every pair of shapes
         public void FindIntersecingShapes(bool printOnConsole = false)
-        {
+        {            
             int totalNoOfShapes = ProvidedShapes.Count;
+            IntersectingIndex = new bool[totalNoOfShapes];
             IsAnIntersectingShape = new bool[totalNoOfShapes, totalNoOfShapes];
             AnyIntersectionFound = false;
             //checking intersection for every pair of shapes
             for (int i = 0; i < totalNoOfShapes; i++)
-            {                
+            {
                 for (int j = 0; j < totalNoOfShapes; j++)
                 {
                     if(i == j)
@@ -31,6 +37,8 @@ namespace IntersectingShapes
                         IsAnIntersectingShape[i, j] = AreShapesIntersecting(ProvidedShapes[i], ProvidedShapes[j]);
                         if (IsAnIntersectingShape[i, j])
                         {
+                            IntersectingIndex[i] = true;
+                            IntersectingIndex[j] = true;
                             AnyIntersectionFound = true;
                         }
                     }
@@ -127,6 +135,84 @@ namespace IntersectingShapes
         public Intersection()
         {
             ProvidedShapes = new List<Shape>();
+        }
+        public void Draw()
+        {
+            FindMinMax();
+            if (!(minX >= -(axisX / 2) && maxX <= (axisX / 2) && minY >= -(axisY / 2) && maxY <= (axisY / 2)))
+            {
+                Console.WriteLine("This range of coordinates cannot be plotted");
+                return;
+            }
+            for (int i = 0; i < axisY; i++)
+            {
+                for (int j = 0; j < axisX; j++)
+                {
+                    px[i, j] = Console.BackgroundColor;
+                }
+            }
+            FindIntersecingShapes();
+            for (int i = 0; i < ProvidedShapes.Count; i++)
+            {
+                ConsoleColor color = ConsoleColor.White;
+                if (IntersectingIndex[i])
+                {
+                    color = ConsoleColor.Red;
+                }
+                for (int j = 0; j < ProvidedShapes[i].Segments.Length; j++)
+                {
+                    DrawLineSegment((int)ProvidedShapes[i].Segments[j][0].x, (int)ProvidedShapes[i].Segments[j][0].y, (int)ProvidedShapes[i].Segments[j][1].x, (int)ProvidedShapes[i].Segments[j][1].y, color);
+                }
+            }
+            DrawOnConsole();
+        }
+        private void FindMinMax()
+        {
+            minX = int.MaxValue;
+            maxX = int.MinValue;
+            minY = int.MaxValue;
+            maxY = int.MinValue;
+            for (int i = 0; i < this.ProvidedShapes.Count; i++)
+            {
+                for (int j = 0; j < ProvidedShapes[i].Coordinates.Length; j++)
+                {
+                    if (minX > ProvidedShapes[i].Coordinates[j].x)
+                        minX = (int)(ProvidedShapes[i].Coordinates[j].x);
+                    if (maxX < ProvidedShapes[i].Coordinates[j].x)
+                        maxX = (int)(ProvidedShapes[i].Coordinates[j].x);
+                    if (minY > ProvidedShapes[i].Coordinates[j].y)
+                        minY = (int)(ProvidedShapes[i].Coordinates[j].y);
+                    if (maxY < ProvidedShapes[i].Coordinates[j].y)
+                        maxY = (int)(ProvidedShapes[i].Coordinates[j].y);
+                }
+            }
+        }
+        private void DrawLineSegment(int x1, int y1, int x2, int y2, ConsoleColor color)
+        {
+            int cfactor = ((x2 - x1) * y1) - ((y2 - y1) * x1);
+            for (int i = Math.Min(y1, y2); i <= Math.Max(y1, y2); i++)
+            {
+                for (int j = Math.Min(x1, x2); j <= Math.Max(x1, x2); j++)
+                {
+                    if (((x2 - x1) * i) == (((y2 - y1) * j) + (cfactor)))
+                    {
+                        px[(i+10), (j+50)] = color;
+                    }
+                }
+            }
+        }
+        private void DrawOnConsole()
+        {
+            for (int i = axisY-1; i >= 0; i--)
+            {
+                for (int j = 0; j < axisX; j++)
+                {
+                    Console.ForegroundColor = px[i, j];
+                    Console.Write(".");
+                }
+                Console.WriteLine();
+            }
+            Console.ForegroundColor = ConsoleColor.White;
         }
     }
 }

@@ -13,6 +13,8 @@ namespace IntersectingShapes
         {
             try
             {
+                Console.BackgroundColor = ConsoleColor.Black;
+                Console.ForegroundColor = ConsoleColor.White;
                 intersection = new Intersection();
                 string input;
                 do
@@ -35,6 +37,8 @@ namespace IntersectingShapes
                         Console.WriteLine("3. Check intersecion of added shapes");
                     if (intersection.ProvidedShapes.Count > 0)
                         Console.WriteLine("4. Restart");
+                    if (intersection.ProvidedShapes.Count > 1)
+                        Console.WriteLine("5. Draw shapes");
                     Console.WriteLine("0. Exit");
                     Console.Write("Please enter your choice: ");
                     input = Console.ReadLine();
@@ -59,6 +63,10 @@ namespace IntersectingShapes
                             case 4: //Reset
                                 if (intersection.ProvidedShapes.Count > 0)
                                     intersection.ProvidedShapes.Clear();
+                                break;
+                            case 5:
+                                if (intersection.ProvidedShapes.Count > 1)
+                                    intersection.Draw();
                                 break;
                             default:
                                 Console.WriteLine("Invalid choice! Please try again.");

@@ -23,9 +23,9 @@ namespace IntersectingShapes
         public int Dimension { get; set; }
         public string ShapeName { get; set; }
         public Point[] Coordinates { get; set; }
+        public Point[][] Segments { get; set; }
         public Vector[] Edges { get; set; }
         public abstract bool IsShapeValid();
-        public abstract void DrawShape();
         public void PrintCoordinates()
         {
             if (!IsShapeValid())
@@ -57,6 +57,7 @@ namespace IntersectingShapes
             ShapeName = "Rectangle";
             Coordinates = new Point[4];            
             Edges = new Vector[4];
+            Segments = new Point[4][];
         }
         //TODO: modify to check for decimal values also
         //2D implementation
@@ -75,6 +76,21 @@ namespace IntersectingShapes
                         return false;
                 }
             }
+            //no of distinct distances between any two vertices will be 3 for a rectangle and 2 for a square
+            Dictionary<double, bool> sizes = new Dictionary<double, bool>();
+            for (int i = 0; i < Coordinates.Length; i++)
+            {
+                for (int j = 0; j < Coordinates.Length; j++)
+                {
+                    if (i == j)
+                    {
+                        continue;
+                    }
+                    sizes[Coordinates[i].GetDistanceSquare(Coordinates[j])] = true;
+                }
+            }            
+            if (sizes.Keys.Count > 3 || sizes.Keys.Count < 2)
+                return false;
             //check all possible order of given input for a valid rectangle
             //populate the edges accordingly
             if (IsOrderedRectangle(Coordinates[0], Coordinates[1], Coordinates[2], Coordinates[3]))
@@ -83,6 +99,12 @@ namespace IntersectingShapes
                 Edges[1] = new Vector(Coordinates[1], Coordinates[2]);
                 Edges[2] = new Vector(Coordinates[2], Coordinates[3]);
                 Edges[3] = new Vector(Coordinates[3], Coordinates[0]);
+
+                Segments[0] = new Point[] { Coordinates[0], Coordinates[1] };
+                Segments[1] = new Point[] { Coordinates[1], Coordinates[2] };
+                Segments[2] = new Point[] { Coordinates[2], Coordinates[3] };
+                Segments[3] = new Point[] { Coordinates[3], Coordinates[0] };
+
                 return true;
             }
             if (IsOrderedRectangle(Coordinates[2], Coordinates[1], Coordinates[3], Coordinates[0]))
@@ -91,6 +113,12 @@ namespace IntersectingShapes
                 Edges[1] = new Vector(Coordinates[1], Coordinates[3]);
                 Edges[2] = new Vector(Coordinates[3], Coordinates[0]);
                 Edges[3] = new Vector(Coordinates[0], Coordinates[2]);
+
+                Segments[0] = new Point[] { Coordinates[2], Coordinates[1] };
+                Segments[1] = new Point[] { Coordinates[1], Coordinates[3] };
+                Segments[2] = new Point[] { Coordinates[3], Coordinates[0] };
+                Segments[3] = new Point[] { Coordinates[0], Coordinates[2] };
+
                 return true;
             }
             if (IsOrderedRectangle(Coordinates[0], Coordinates[1], Coordinates[3], Coordinates[2]))
@@ -99,6 +127,12 @@ namespace IntersectingShapes
                 Edges[1] = new Vector(Coordinates[1], Coordinates[3]);
                 Edges[2] = new Vector(Coordinates[3], Coordinates[2]);
                 Edges[3] = new Vector(Coordinates[2], Coordinates[0]);
+
+                Segments[0] = new Point[] { Coordinates[0], Coordinates[1] };
+                Segments[1] = new Point[] { Coordinates[1], Coordinates[3] };
+                Segments[2] = new Point[] { Coordinates[3], Coordinates[2] };
+                Segments[3] = new Point[] { Coordinates[2], Coordinates[0] };
+
                 return true;
             }
             return false;
@@ -108,35 +142,18 @@ namespace IntersectingShapes
         private bool IsOrderedRectangle(Point a, Point b, Point c, Point d)
         {
             List<Point> points = new List<Point> { a, b, c, d};
-            Dictionary<double, bool> sizes = new Dictionary<double, bool>();
-            for (int i = 0; i < points.Count; i++)
-            {
-                for (int j = 0; j < points.Count; j++)
-                {
-                    if (i == j)
-                    {
-                        continue;
-                    }
-                    sizes[points[i].GetDistanceSquare(points[j])] = true;
-                }
-            }
-            //no of distinct distances between any two vertices will be 3 for a rectangle and 2 for a square
-            if (sizes.Keys.Count > 3 || sizes.Keys.Count < 2)
-                return false;
-            List<double> sortedSizes = new List<double>();
-            foreach (var item in sizes.Keys)
-            {
-                sortedSizes.Add(item);
-            }
-            sortedSizes.Sort();
             //check if orthogonal using Pythagros theorem
-            if (sortedSizes.Count == 2)
-                return (2 * sortedSizes[0] == sortedSizes[1]);
-            return (sortedSizes[0] + sortedSizes[1] == sortedSizes[2]);
-        }
-        public override void DrawShape()
-        {
-            //TODO
+            double ab = points[0].GetDistanceSquare(points[1]);
+            double bc = points[1].GetDistanceSquare(points[2]);
+            double ac = points[0].GetDistanceSquare(points[2]);
+            if(ac == ab+ bc)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
     public class Trinagle : Shape
@@ -148,6 +165,7 @@ namespace IntersectingShapes
             ShapeName = "Triangle";
             Coordinates = new Point[3];
             Edges = new Vector[3];
+            Segments = new Point[3][];
         }
         //2D implementation
         public override bool IsShapeValid()
@@ -161,12 +179,13 @@ namespace IntersectingShapes
                 Edges[0] = new Vector(Coordinates[0], Coordinates[1]);
                 Edges[1] = new Vector(Coordinates[1], Coordinates[2]);
                 Edges[2] = new Vector(Coordinates[2], Coordinates[0]);
+
+                Segments[0] = new Point[] { Coordinates[0], Coordinates[1] };
+                Segments[1] = new Point[] { Coordinates[1], Coordinates[2] };
+                Segments[2] = new Point[] { Coordinates[2], Coordinates[0] };
+
                 return true;
             }
-        }        
-        public override void DrawShape()
-        {
-            //TODO
         }
     }
 }

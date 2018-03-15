@@ -21,3 +21,4 @@ The application supports 2D convex polygons. As of now, it supports triangles an
 Constraints for drawing of shapes:
 1. -50 <= abscissa <= 50
 1. -10 <= ordinate <= 10
+Also, drawing of shapes does not work flawlessly for narrow shapes.
